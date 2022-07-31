@@ -1,0 +1,19 @@
+/* Navigation bar styles ----------------------------------------------------------------------------------------- */
+.navbar-default { background-color: #164077; } /* Set navigation bar color */
+.navbar-default .navbar-nav li a { color: #FFFFFF; } /* Set navigation bar text color */
+.navbar-default .navbar-nav li a:hover { color: #FFFFFF; background-color: #000000; } /* Set navigation bar text color and background color when hovering */
+.navbar-default .navbar-brand { color: #FFFFFF; } /* Set navigation bar title (CA Community Burden of Disease Engine) color */
+.navbar-default .navbar-nav .active a { background-color: #000000; color: #FFFFFF; } /* Set active navigation item text color and background color */
+.navbar-default .navbar-nav .active a:focus { background-color: #000000; color: #FFFFFF; } /* Unsure what the difference is between focus and hover, but this is essentially doing the same thing as below. */
+.navbar-default .navbar-nav .active a:hover { background-color: #000000; color: #FFFFFF; } /* Set active navigation item text color and background color when hovering */
+
+/* Customise sub-tabs */
+.nav { margin-bottom: 0; }
+.nav-tabs li a { color: #000000; background-color: #16407714; border: 1px solid #1640775c; }
+.nav-tabs li.active a {color: #000000; background-color: #FFFFFF; border: 1px solid #1640775c; }
+
+/* Style sidebar panel */
+.well { background-color: #FFFFFF; margin-top: 20px; border: 0; border-radius: 0; -webkit-box-shadow: inset 0 0 0 rgb(0 0 0 / 0%); box-shadow: inset 0 0 0 rgb(0 0 0 / 0%); }
+
+/* Show Tab Information, Download buttons styling */
+.btn-default { color: #FFFFFF; background-color: #164077; width: 100%; }
