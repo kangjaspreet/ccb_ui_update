@@ -18,7 +18,6 @@
 # =============================================================================
 
 # - 1. LOAD STANDARDS & SET PATHS ----------------------------------------------------------------------------------------------------
-
 CCB         <- TRUE
 server      <- TRUE
 myPlace     <- getwd() # ERROR IF THIS ISNT HERE. DETERMINE AN APPROACH WHERE THIS ISNT NEEDED
@@ -41,7 +40,10 @@ VALID_YEARS <- 1990:2017
 
 # - 2. GLOBAL CONSTANTS --------------------------------------------------------------------------------------------------
 
-whichData <- 'real' # Change to fake to run app on local machine without access to real datasets
+whichData <- 'fake' # Change to fake to run app on local machine without access to real datasets
+
+widthSidePanel <- 3
+widthMainPanel <- 12 - widthSidePanel
 
 viewType <- "Present"
 
@@ -96,23 +98,57 @@ library(visNetwork) # used in IHME tab
 library(DT)
 library(cowplot)
 library(docxtractr)
+library(rclipboard) # Copying link to clipboard
 
 # - 4. READ DATASETS & INFO ------------------------------------------------------------------------------------------------------
 
 # MORTALITY DATASETS
-datCounty           <- readRDS(paste0("myData/", whichData, "/datCounty.RDS"))
+datCounty <- readRDS(paste0("myData/", whichData, "/datCounty.RDS"))
+datCounty_3year <- readRDS(paste0("myData/", whichData, "/datCounty_3year.RDS"))
+datCounty_5year <- readRDS(paste0("myData/", whichData, "/datCounty_5year.RDS"))
+datCounty_RE <- readRDS(paste0("myData/", whichData, "/datCounty_RE.RDS"))
+datState_RE <- readRDS(paste0("myData/", whichData, "/datState_RE.RDS"))
+datCounty_AGE_3year <- readRDS(paste0("myData/", whichData, "/datCounty_AGE_3year.RDS"))
+datState_AGE <- readRDS(paste0("myData/", whichData, "/datState_AGE.RDS"))
+
+datCounty_EDU <- readRDS(paste0("myData/", whichData, "/datCounty_EDU.RDS"))
+eduMap        <- as.data.frame(read_csv("myInfo/Education Codes and Names.csv"))
+datCounty_EDU <- left_join(datCounty_EDU, eduMap, by="eduCode")
+
+# Life Expectancy
+geoMap  <- as.data.frame(read_excel("myInfo/County Codes to County Names Linkage.xlsx")) %>%
+  select(FIPSCounty,county=countyName)
+
+lifeTableCounty <- readRDS("myData/e0ciCounty.RDS") %>%
+  mutate(FIPSCounty=substr(GEOID,3,5))  %>%
+  left_join(geoMap,by="FIPSCounty") %>%
+  mutate(sex = str_to_title(sex))
+
+lifeTableState  <- readRDS("myData/e0ciState.RDS") %>%
+  mutate(county = "CALIFORNIA") %>%
+  mutate(sex = str_to_title(sex))
+
+lifeTableSet   <- bind_rows(lifeTableCounty, lifeTableState) %>%
+  left_join(select(raceLink, raceCode, raceNameShort), by = "raceCode")
+
+# FIX MIN and MAX Year in global or other life tables function eventaully
+minYear_LT <- min(lifeTableSet$year)
+maxYear_LT <- max(lifeTableSet$year)
+
+
+chartYearMap <-  read_excel("myInfo/Year to Year-Group Linkage.xlsx")
 
 # - 5. LOAD FUNCTIONS ------------------------------------------------------------------------------------------------------------------------------------
 
 # PLOTTING/TABLE FUNCTIONS
 source("myFunctions/make_ANY_TREND_chart.R")
+source("myFunctions/make_LIFE-EXPECTANCY_chart.R")
+source("myFunctions/make_topTrends.R")
+source("myFunctions/make_TREND-EDUCATION_chart.R")
 
 # HELPER FUNCTIONS
 source("myFunctions/helperFunctions/wrapLabels.R")
 source("myFunctions/helperFunctions/dottedSelectInput.R")
-
-# MODULES
-source("sexTrendTab.R")
 
 
 # - 6. APP TEXT ---------------------------------------------------------------------------------------------------------------------------------------
@@ -137,7 +173,7 @@ news_and_updates <- paste("\n<li>Welcome to the CCB!</li>\n<br>", (paste(news_an
 
 
 # WARNING MESSAGES
-multiRaceWarning <- "** Note: Multirace data are NOT RELIABLE due to changing data collection practices"
+multiRaceWarning <- "*Note: Multirace data are NOT RELIABLE due to changing data collection practices"
 
 
 # - 7. CREATE VECTORS FOR SHINY INPUTS -------------------------------------------------------------------------------------------------------------
@@ -237,7 +273,7 @@ lList         <- sort(as.character(unique(datCounty$county))) # Used in input wi
 
 
 # INPUT FUNCTIONS
-source("myFunctions/inputFunctions/input_widgets.R")
+# source("myFunctions/inputFunctions/input_widgets.R")
 
 
 

@@ -13,7 +13,21 @@
 .nav-tabs li.active a {color: #000000; background-color: #FFFFFF; border: 1px solid #1640775c; }
 
 /* Style sidebar panel */
-.well { background-color: #FFFFFF; margin-top: 20px; border: 0; border-radius: 0; -webkit-box-shadow: inset 0 0 0 rgb(0 0 0 / 0%); box-shadow: inset 0 0 0 rgb(0 0 0 / 0%); }
+.well { background-color: #FFFFFF; border: 0; border-radius: 0; -webkit-box-shadow: inset 0 0 0 rgb(0 0 0 / 0%); box-shadow: inset 0 0 0 rgb(0 0 0 / 0%); }
+
+.tab-pane.active { margin-top: 20px; }
 
 /* Show Tab Information, Download buttons styling */
 .btn-default { color: #FFFFFF; background-color: #164077; width: 100%; }
+
+/* Multi-Select Buttons - used in Life Expectancy and Leading Causes Trends tabs... use checkboxGroupButtons(..., status = "multiSelectButtons") */
+.btn-multiSelectButtons.active { color: #FFFFFF; background-color: #164077; border-color: #ccc; margin-bottom: 10px; }
+.btn-multiSelectButtons { color: #333; background-color: #e6e6e6; border-color: #adadad; margin-bottom: 10px;}
+
+
+
+/*
+[id$="clipbtn"].btn:focus {
+  bakground-color: green;
+}
+*/

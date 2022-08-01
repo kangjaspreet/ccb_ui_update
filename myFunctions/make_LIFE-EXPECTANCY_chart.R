@@ -2,27 +2,6 @@
 # if (!server) source("g:/FusionData/Standards/FusionStandards.R")
 # if (server) source("/mnt/projects/FusionData/Standards/FusionStandards.R")
 
-
-
-geoMap          <- as.data.frame(read_excel(paste0(ccbInfo,"/County Codes to County Names Linkage.xlsx"))) %>%
-                     select(FIPSCounty,county=countyName)
-
-lifeTableCounty <- readRDS(paste0(ccbData,"/e0ciCounty.RDS")) %>%
-                     mutate(FIPSCounty=substr(GEOID,3,5))  %>%
-                     left_join(geoMap,by="FIPSCounty") %>%
-                     mutate(sex = str_to_title(sex))
-
-lifeTableState  <- readRDS(paste0(ccbData,"/e0ciState.RDS")) %>%
-                     mutate(county = "CALIFORNIA") %>%
-                     mutate(sex = str_to_title(sex))
-
-lifeTableSet   <- bind_rows(lifeTableCounty, lifeTableState) %>%
-  left_join(select(raceLink, raceCode, raceNameShort), by = "raceCode")
-
-# FIX MIN and MAX Year in global or other life tables function eventaully
-  minYear_LT <- min(lifeTableSet$year)
-  maxYear_LT <- max(lifeTableSet$year)
-
 #== FUNCTION ========================================================================================================  
   
   

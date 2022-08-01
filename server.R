@@ -3,26 +3,21 @@ server <- function(input, output, session) {
   # Store current navID (big tabs) and tabID (subtabs) for use throughout Server
   current <- reactiveValues()
   
+  trendsSex_server(id = "sexTrendTab")
+  trendsAge_server(id = "ageTrendTab")
+  trendsRace_server(id = "raceTrendTab")
+  trendsEducation_server(id = "educationTrendTab")
+  trendsLifeExpectancy_server(id = "lifeExpectancyTrendTab")
+  trendsLeadingCauses_server(id = "leadingCausesTrendTab")
   
-  # Trend ----------------------------------------------------------------------------------------------------
-  
-  # observe({
-  #   if (input$myLHJ == "CALIFORNIA" & current$tab %in% c("ageTrendTab", "raceTrendTab")) shinyjs::show("myYearGrouping_race_age") else shinyjs::hide("myYearGrouping_race_age")
-  # })
-  # 
-  # observe({
-  #   print(input$myLHJ)
-  #   print(input$myCAUSE)
-  #   print(input$myMeasure)
-  #   print(input$trendID)
-  #   print(input$myYearGrouping)
-  #   print(input$myYearGrouping_race_age)
-  #   print(input$myLogTrans)
-  #   print(input$myMultiRace)
-  # })
-  
-  trendSex_server("sexTrendTab")
-  
+  observe({
+    query <- parseQueryString(session$clientData$url_search)
+    names(query) <- str_to_lower(names(query))
+    storeQueryNames <- names(query)
+    
+    print(storeQueryNames)
+    
+  })
 
   
 }
