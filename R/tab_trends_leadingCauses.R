@@ -1,5 +1,3 @@
-"topTrendsTab"=c("myLHJ", "myYearRank", "myYearRange", "myMeasure", "myLevShort", "myN_topTrends", "myBroadGroups", "myLogTrans", "suppressionNote")
-
 trendsLeadingCauses_ui <- function(id) {
   ns <- NS(id)
   tabPanel(title = "Leading Causes", value = id, 
@@ -9,22 +7,17 @@ trendsLeadingCauses_ui <- function(id) {
                           br(),
                           tabInformation(id = ns("myTabInformation")),
                           hr(),
-                          selectLHJ(id = ns("myLHJ")),
-                          selectMeasure(id1 = ns("myMeasure"), id2 = ns("measureHelp"), choices = deathMeasures_Dropdown, selected = "aRate"),
-                          radioButtons(ns("myLevShort"), label=list("Levels to show:", actionButton(ns("levelShortHelp"), label=helpIcon, style=myInputHelpButtonSty)),
-                                       choices=c("Top" = "lev1", "Public Health" = "lev2"), inline=TRUE, selected = 'lev2'),
-                          numericInput(ns("myN_topTrends"),  "How many conditions:", value=5,min=1,max= 50),
-                          checkboxGroupButtons(ns("myBroadGroups"),
-                                               label = list("Select one or more broad condition group:", actionButton(inputId=ns("broadGroupHelp"), label=helpIcon, style=myInputHelpButtonSty_broadGroup)),
-                                               choices = c("All" = "0", "Communicable" = "A", "Cancer" = "B", "Cardiovascular" = "C", "Other Chronic" = "D", "Injury" = "E"),
-                                               selected = c("A", "B", "C", "D", "E"), individual=TRUE, size="sm", status = "multiSelectButtons"),
-                          sliderInput(ns("myYearRank"), label = "Leading causes in which year?:", value = maxYear, min = minYear, max = maxYear,
-                                       round = TRUE, sep = "", step = 1),
-                          sliderInput(ns("myYearRange"), label = "Year range To display:", min = minYear, max = maxYear, value = c(minYear, maxYear), sep = "", step = 1),
-                          checkboxInput(ns("myLogTrans"),  "Log Transform of Y Axis", value=FALSE),
-                          suppressionNote(id = ns("suppressionNote")),
+                          inputLHJ(id = ns("myLHJ")),
+                          inputMeasure(id1 = ns("myMeasure"), id2 = ns("measureHelp"), choices = deathMeasures_Dropdown, selected = "aRate"),
+                          inputLevel(id1 = ns("myLevShort"), id2 = "myLevelShortHelp"),
+                          inputN(id = ns("myN")),
+                          inputBroadGroups(id1 = ns("myBroadGroups"), id2 = ns("myBroadGroupHelp")),
+                          inputYearRank(id = ns("myYearRank")),
+                          inputYearRange(id = ns("myYearRange")),
+                          inputLogTrans(id = ns("myLogTrans")),
+                          noteSuppression(id = ns("mySuppressionNote")),
                           hr(),
-                          fluidRow(column(width = 12, downloadButton(ns("myChart"), "Download Chart")))
+                          fluidRow(column(width = 12, downloadChart(id = ns("myChart"))))
              ),
              mainPanel(width = widthMainPanel, plotOutput(ns("trendsLeadingCauses"), width="100%",height = 700))
            ),
@@ -34,15 +27,49 @@ trendsLeadingCauses_ui <- function(id) {
 }
 
 
-trendsLeadingCauses_server <- function(id) {
+trendsLeadingCauses_server <- function(id, urlParams = NULL) {
   moduleServer(
     id, 
     function(input, output, session) {
       
+      
+      # Update inputs based on URL if custom URL is supplied ------------------------------------------------------------------------------
+      observe({
+        if (length(urlParams > 0)) {
+          if (urlParams$tab == id) {
+            if ("county" %in% names(urlParams)) updateSelectInput(session, "myLHJ", selected = urlParams$county)
+            if ("measure" %in% names(urlParams)) updateSelectInput(session, "myMeasure", selected = urlParams$measure)
+            if ("level" %in% names(urlParams)) updateRadioButtons(session, "myLevShort", selected = urlParams$level)
+            if ("N" %in% names(urlParams)) updateNumericInput(session, "myN", value = as.numeric(urlParams$N))
+            if ("broadGroup" %in% names(urlParams)) updateCheckboxGroupButtons(session, "myBroadGroups", selected = unlist(strsplit(urlParams$broadGroup, "[|]")))
+            if ("yearRank" %in% names(urlParams)) updateSliderInput(session, "myYearRank", value = as.numeric(urlParams$yearRank))
+            if ("yearRange" %in% names(urlParams)) updateSliderInput(session, "myYearRange", value = as.numeric(unlist(strsplit(urlParams$yearRange, "[-]"))))
+            if ("logTrans" %in% names(urlParams)) updateCheckboxInput(session, "myLogTrans", value = as.logical(urlParams$logTrans))
+          }
+        }
+      })
+      
+      # Automatically generate URL to current view ----------------------------------------------------------------------------------------
+      output$clip <- renderUI({
+        rclipButton(inputId = "clipbtn", label = "Copy Link to Current View", 
+                    clipText = paste0(myURL, 
+                                      "?tab=", id, 
+                                      "&county=", input$myLHJ,
+                                      "&measure=", input$myMeasure,
+                                      "&level=", input$myLevShort,
+                                      "&N=", input$myN,
+                                      "&broadGroup=", paste(input$myBroadGroups, collapse = "|"),
+                                      "&yearRank=", input$myYearRank,
+                                      "&yearRange=", paste(input$myYearRange, collapse = "-"),
+                                      "&logTrans=", input$myLogTrans),
+                    icon = icon("clipboard"))
+      })
+      
+      # Render plot -------------------------------------------------------------------------------------------------------------------------
       myStep <- reactive(topCauses_trends(myLHJ = input$myLHJ, 
                                           myMeasure = input$myMeasure,
                                           myLogTrans = input$myLogTrans, 
-                                          myN = input$myN_topTrends,
+                                          myN = input$myN,
                                           myLev = input$myLevShort,
                                           myBroad = input$myBroadGroups,
                                           myYearRange = input$myYearRange,
@@ -50,20 +77,8 @@ trendsLeadingCauses_server <- function(id) {
       
       output$trendsLeadingCauses <- renderPlot(myStep()$plotL)
       
-      output$clip <- renderUI({
-        rclipButton(inputId = "clipbtn", label = "Copy Link to Current View", 
-                    clipText = paste0("https://skylab.cdph.ca.gov/communityBurden/?tab=", id, 
-                                      "?county=", input$myLHJ,
-                                      "?measure=", input$myMeasure,
-                                      "?logTrans=", input$myLogTrans,
-                                      "&myN=", input$myN_topTrends, 
-                                      "&myLev=", input$myLevShort,
-                                      "&myBroad=", input$myBroadGroups,
-                                      "&myYearRange=", input$myYearRange,
-                                      "&myYearRank=", input$myYearRank), 
-                    icon = icon("clipboard"))
-      })
       
+      # Download chart -------------------------------------------------------------------------------------------------------------
       output$myChart <- downloadHandler(filename = function() { paste0(id, "-", input$myLHJ, "-", Sys.Date(), ".png") },
                                         content = function(file) {
                                           png(file, width = 18, height = 10, units = "in", pointsize = 10, res = 100)
@@ -71,12 +86,12 @@ trendsLeadingCauses_server <- function(id) {
                                           dev.off()
                                         })
       
-      
+      # Show/hide inputs based on Level selection ----------------------------------------------------------------------------------------------------
       observe({
         if (input$myLevShort == "lev1") {
-          hide("myBroadGroups"); hide("myN_topTrends"); hide("myYearRank")
+          hide("myBroadGroups"); hide("myN"); hide("myYearRank")
         } else {
-          show("myBroadGroups"); show("myN_topTrends"); show("myYearRank")
+          show("myBroadGroups"); show("myN"); show("myYearRank")
         }
       })
       

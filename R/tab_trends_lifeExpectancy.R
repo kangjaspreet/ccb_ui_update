@@ -7,20 +7,17 @@ trendsLifeExpectancy_ui <- function(id) {
                           br(),
                           tabInformation(id = ns("myTabInformation")),
                           hr(),
-                          selectLHJ(id = ns("myLHJ")),
-                          checkboxGroupButtons(ns("mySexMult"), "Which Sex Groups?",
-                                               choices = c("Total", "Male", "Female"),
-                                               selected = c("Male", "Female"), individual=TRUE,size="sm", status = "multiSelectButtons"),
-                          checkboxGroupButtons(ns("myRace"), "Which Race/Ethnic Groups?",
-                                               choices = raceList,
-                                               selected = raceList[!raceList %in% c("Multi-Race","Total","NH/PI","AI/AN")] , individual=TRUE,size="sm", status = "multiSelectButtons"),
-                          radioButtons(ns("myYearGrouping"), "Years to Group:", choices=c(1,3,5), inline = TRUE),
-                          checkboxInput(ns("myCI"), "95% CIs", value=FALSE),
+                          inputLHJ(id = ns("myLHJ")),
+                          inputSexMultiSelect(id = ns("mySexMult")),
+                          inputRaceMultiSelect(id = ns("myRaceMult")),
+                          inputYearGrouping(id = ns("myYearGrouping")),
+                          inputCI(id = ns("myCI")),
                           hr(),
-                          fluidRow(column(width = 6, downloadButton(ns("myData"), "Download Data")), 
-                                   column(width = 6, downloadButton(ns("myChart"), "Download Chart")))
+                          fluidRow(column(width = 6, downloadData(id = ns("myData"))), 
+                                   column(width = 6, downloadChart(id = ns("myChart"))))
              ),
-             mainPanel(width = widthMainPanel, plotOutput(ns("trendsLifeExpectancy"), width="100%",height = 700))
+             mainPanel(width = widthMainPanel, uiOutput(ns("plotTitle")), 
+                       plotlyOutput(ns("trendsLifeExpectancy"), width="100%",height = 700))
              ),
              br(),
              hr(),
@@ -28,27 +25,54 @@ trendsLifeExpectancy_ui <- function(id) {
 }
 
 
-trendsLifeExpectancy_server <- function(id) {
+trendsLifeExpectancy_server <- function(id, urlParams = NULL) {
   moduleServer(
     id, 
     function(input, output, session) {
       
-      myStep <- reactive(LEtrend(myLHJ = input$myLHJ, 
-                                 mySexMult = input$mySexMult, 
-                                 myRace = input$myRace,
-                                 myCI = input$myCI,
-                                 myYearGrouping = input$myYearGrouping))
+      # Update inputs based on URL if custom URL is supplied ------------------------------------------------------------------------------
+      observe({
+        if (length(urlParams > 0)) {
+          if (urlParams$tab == id) {
+            if ("county" %in% names(urlParams)) updateSelectInput(session, "myLHJ", selected = urlParams$county)
+            if ("measure" %in% names(urlParams)) updateSelectInput(session, "myMeasure", selected = urlParams$measure)
+            if ("sex" %in% names(urlParams)) updateCheckboxGroupButtons(session, "mySexMult", selected = unlist(strsplit(urlParams$sex, "[|]")))
+            if ("race" %in% names(urlParams)) updateCheckboxGroupButtons(session, "myRaceMult", selected = unlist(strsplit(urlParams$race, "[|]")))
+            if ("yearGrouping" %in% names(urlParams)) updateRadioButtons(session, "myYearGrouping", selected = as.numeric(urlParams$yearGrouping))
+            if ("CI" %in% names(urlParams)) updateCheckboxInput(session, "myCI", value = as.logical(urlParams$CI))
+            }
+        }
+      })
       
-      output$trendsLifeExpectancy  <- renderPlot(myStep()$plotL)
-      
+      # Automatically generate URL to current view ----------------------------------------------------------------------------------------
       output$clip <- renderUI({
         rclipButton(inputId = "clipbtn", label = "Copy Link to Current View", 
-                    clipText = paste0("https://skylab.cdph.ca.gov/communityBurden/?tab=", id, 
-                                      "?county=", input$myLHJ,
-                                      "?yearGrouping=", input$myYearGrouping), 
+                    clipText = paste0(myURL, 
+                                      "?tab=", id,
+                                      "&county=", input$myLHJ,
+                                      "&sex=", paste(input$mySexMult, collapse = "|"),
+                                      "&race=", paste(input$myRaceMult, collapse = "|"),
+                                      "&yearGrouping=", input$myYearGrouping,
+                                      "&CI=", input$myCI), 
                     icon = icon("clipboard"))
       })
       
+      # Render plot title -----------------------------------------------------------------------------------------------------------------
+      output$plotTitle <- renderUI({
+        h3(paste0("Trends in Life Expectancy, ", input$myLHJ, ", ", minYear_LT, "-", maxYear_LT))
+      })
+      
+      # Render plot -------------------------------------------------------------------------------------------------------------------------
+      myStep <- reactive(LEtrend(myLHJ = input$myLHJ, 
+                                 mySexMult = input$mySexMult, 
+                                 myRace = input$myRaceMult,
+                                 myCI = input$myCI,
+                                 myYearGrouping = input$myYearGrouping))
+      
+      output$trendsLifeExpectancy  <- renderPlotly(myStep()$plotL_interactive)
+      
+      
+      # Download data and chart -------------------------------------------------------------------------------------------------------------
       output$myData <- downloadHandler(filename = function() { paste0(id, "-", input$myLHJ, "-", Sys.Date(), ".csv") },
                                        content = function(file) {
                                          write.csv(myStep()$dataL, file, row.names = FALSE)

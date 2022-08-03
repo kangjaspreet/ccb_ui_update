@@ -40,6 +40,8 @@ VALID_YEARS <- 1990:2017
 
 # - 2. GLOBAL CONSTANTS --------------------------------------------------------------------------------------------------
 
+myURL <- "http://127.0.0.1:4437/"
+
 whichData <- 'fake' # Change to fake to run app on local machine without access to real datasets
 
 widthSidePanel <- 3
@@ -136,6 +138,12 @@ minYear_LT <- min(lifeTableSet$year)
 maxYear_LT <- max(lifeTableSet$year)
 
 
+# POPULATION (DEMOGRAPHICS) DATASETS
+popData_AgePyramid <- readRDS("myData/popData_AgePyramid.RDS")
+popData_RaceAge <- readRDS("myData/popData_RaceAge.RDS")
+popData_RacePie <- readRDS("myData/popData_RacePie.RDS")
+
+
 chartYearMap <-  read_excel("myInfo/Year to Year-Group Linkage.xlsx")
 
 # - 5. LOAD FUNCTIONS ------------------------------------------------------------------------------------------------------------------------------------
@@ -145,6 +153,7 @@ source("myFunctions/make_ANY_TREND_chart.R")
 source("myFunctions/make_LIFE-EXPECTANCY_chart.R")
 source("myFunctions/make_topTrends.R")
 source("myFunctions/make_TREND-EDUCATION_chart.R")
+source("myFunctions/make_demographic_charts.R")
 
 # HELPER FUNCTIONS
 source("myFunctions/helperFunctions/wrapLabels.R")
@@ -174,6 +183,10 @@ news_and_updates <- paste("\n<li>Welcome to the CCB!</li>\n<br>", (paste(news_an
 
 # WARNING MESSAGES
 multiRaceWarning <- "*Note: Multirace data are NOT RELIABLE due to changing data collection practices"
+
+
+tabsLink <- read_xlsx("myInfo/queryParameter_Linkage.xlsx") %>% 
+  select(tabID, sub_tabID)
 
 
 # - 7. CREATE VECTORS FOR SHINY INPUTS -------------------------------------------------------------------------------------------------------------
@@ -276,6 +289,21 @@ lList         <- sort(as.character(unique(datCounty$county))) # Used in input wi
 # source("myFunctions/inputFunctions/input_widgets.R")
 
 
+# Plotting functions ----------------------------------------------------------------------------------------------
+plotly_layout <- function(p, myTitle = "", myTitleSize = 22, 
+                          myTitleX = "", myTitleXSize = 18, 
+                          myTitleY = "", myTitleYSize = 18) {
+  p %>% plotly::layout(title = list(text = myTitle, font = list(size = myTitleSize, color = "navyblue")), 
+                       xaxis = list(title = list(text = myTitleX, font = list(size = myTitleXSize))), 
+                       yaxis = list(title = list(text = myTitleY, font = list(size = myTitleYSize)))
+  )
+}
 
+plotly_directLabels <- function(myText = "", myColor = "black", myY = 0, myX = 0.95, labelLocation = "right") {
+  # x <- ifelse(labelLocation == "right", 0.95, 0.05)
+  xanchor <- ifelse(labelLocation == "right", "left", "right")
+  list(xref = 'paper', x = myX, y = myY, xanchor = xanchor, yanchor = "middle", 
+       text = myText, font = list(size = 14, color = myColor), showarrow = FALSE)
+}
 
 

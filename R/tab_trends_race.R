@@ -7,19 +7,20 @@ trendsRace_ui <- function(id) {
                           br(),
                           tabInformation(id = ns("myTabInformation")),
                           hr(),
-                          selectCause(id1 = ns("myCause"), id2 = ns("causeHelp")),
-                          selectLHJ(id = ns("myLHJ")),
-                          selectMeasure(id1 = ns("myMeasure"), id2 = ns("measureHelp"), choices = deathMeasures_Dropdown, selected = "aRate"),
-                          radioButtons(ns("myYearGrouping_race_age"), "Years to Group:", choices=c(1,3), inline = TRUE),
-                          checkboxInput(ns("myLogTrans"),  "Log Transform of Y Axis", value=FALSE),
-                          checkboxInput(ns("myMultiRace"),  "Include Multirace Line", value=FALSE),
-                          multiRaceNote(id = ns("multiRaceNote")),
-                          suppressionNote(id = ns("suppressionNote")),
+                          inputCause(id1 = ns("myCause"), id2 = ns("causeHelp")),
+                          inputLHJ(id = ns("myLHJ")),
+                          inputMeasure(id1 = ns("myMeasure"), id2 = ns("measureHelp"), choices = deathMeasures_Dropdown, selected = "aRate"),
+                          inputYearGroupingRaceAge(id = ns("myYearGrouping_race_age")),
+                          inputLogTrans(id = ns("myLogTrans")),
+                          inputMultiRace(id = ns("myMultiRace")),
+                          noteMultiRace(id = ns("myMultiRaceNote")),
+                          noteSuppression(id = ns("mySuppressionNote")),
                           hr(),
-                          fluidRow(column(width = 6, downloadButton(ns("myData"), "Download Data")), 
-                                   column(width = 6, downloadButton(ns("myChart"), "Download Chart")))
+                          fluidRow(column(width = 6, downloadData(id = ns("myData"))), 
+                                   column(width = 6, downloadChart(id = ns("myChart"))))
              ),
-             mainPanel(width = widthMainPanel, plotOutput(ns("trendsRace"), width="100%",height = 700))
+             mainPanel(width = widthMainPanel, uiOutput(ns("plotTitle")),
+                       plotlyOutput(ns("trendsRace"), width="100%",height = 700))
            ),
            br(),
            hr(),
@@ -27,11 +28,46 @@ trendsRace_ui <- function(id) {
 }
 
 
-trendsRace_server <- function(id) {
+trendsRace_server <- function(id, urlParams = NULL) {
   moduleServer(
     id, 
     function(input, output, session) {
       
+      # Update inputs based on URL if custom URL is supplied ------------------------------------------------------------------------------
+      observe({
+        if (length(urlParams > 0)) {
+          if (urlParams$tab == id) {
+            if ("cause" %in% names(urlParams)) updateSelectizeInput(session, "myCause", selected = urlParams$cause)
+            if ("county" %in% names(urlParams)) updateSelectInput(session, "myLHJ", selected = urlParams$county)
+            if ("measure" %in% names(urlParams)) updateSelectInput(session, "myMeasure", selected = urlParams$measure)
+            if ("yearGrouping" %in% names(urlParams)) updateRadioButtons(session, "myYearGrouping_race_age", selected = as.numeric(urlParams$yearGrouping))
+            if ("logTrans" %in% names(urlParams)) updateCheckboxInput(session, "myLogTrans", value = as.logical(urlParams$logTrans))
+            if ("multiRace" %in% names(urlParams)) updateCheckboxInput(session, "myMultiRace", value = as.logical(urlParams$multiRace))
+          }
+        }
+      })
+      
+      # Automatically generate URL to current view ----------------------------------------------------------------------------------------
+      output$clip <- renderUI({
+        rclipButton(inputId = "clipbtn", label = "Copy Link to Current View", 
+                    clipText = paste0(myURL, 
+                                      "?tab=", id, 
+                                      "&cause=", input$myCause,
+                                      "&county=", input$myLHJ,
+                                      "&measure=", input$myMeasure,
+                                      "&yearGrouping=", input$myYearGrouping_race_age,
+                                      "&logTrans=", input$myLogTrans, 
+                                      "&multiRace=", input$myMultiRace), 
+                    icon = icon("clipboard"))
+      })
+      
+      output$plotTitle <- renderUI({
+        h3(paste0("Trend in ",deathMeasuresNames[deathMeasures == input$myMeasure],
+                  " of ", deathCauseLink$causeNameShort[deathCauseLink$causeCode == input$myCause], # JASPO
+                  " in ", input$myLHJ," by RACE/ETHNIC Group, ", minYear," to ", maxYear))
+      })
+      
+      # Render plot -------------------------------------------------------------------------------------------------------------------------
       myStep <- reactive(trendGeneric(myLHJ = input$myLHJ, 
                                       myCause = input$myCause,
                                       myMeasure = input$myMeasure,
@@ -40,20 +76,10 @@ trendsRace_server <- function(id) {
                                       myLogTrans = input$myLogTrans, 
                                       myMultiRace = input$myMultiRace))
       
-      output$trendsRace <- renderPlot(myStep()$plotL)
+      output$trendsRace <- renderPlotly(myStep()$plotL_interactive)
       
-      output$clip <- renderUI({
-        rclipButton(inputId = "clipbtn", label = "Copy Link to Current View", 
-                    clipText = paste0("https://skylab.cdph.ca.gov/communityBurden/?tab=", id, 
-                                      "?county=", input$myLHJ,
-                                      "?cause=", input$myCause,
-                                      "?measure=", input$myMeasure,
-                                      "?yearGrouping=", input$myYearGrouping_race_age,
-                                      "?logTrans=", input$myLogTrans, 
-                                      "&multiRace=", input$myMultiRace), 
-                    icon = icon("clipboard"))
-      })
       
+      # Download data and chart -------------------------------------------------------------------------------------------------------------
       output$myData <- downloadHandler(filename = function() { paste0(id, "-", input$myLHJ, "-", Sys.Date(), ".csv") },
                                        content = function(file) {
                                          write.csv(myStep()$dataL, file, row.names = FALSE)
@@ -66,6 +92,7 @@ trendsRace_server <- function(id) {
                                           dev.off()
                                         })
       
+      # Update, disable, & enable year grouping button based on county selection ---------------------------------------------------------------------
       observe({
         if (input$myLHJ != STATE) {
           updateRadioButtons(inputId = "myYearGrouping_race_age", selected = 3)
@@ -75,8 +102,9 @@ trendsRace_server <- function(id) {
         }
       })
       
+      # Toggle multi-race note ------------------------------------------------------------------------------------------------------------------------
       observeEvent(input$myMultiRace, {
-        shinyjs::toggle("multiRaceNote")
+        shinyjs::toggle("myMultiRaceNote")
       })
       
     }

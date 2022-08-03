@@ -59,6 +59,7 @@ trendGeneric <- function(myLHJ="CALIFORNIA",myCause="A",myMeasure = "YLL", myTab
     
         varsIn  <- c("causeNameShort","county","year","sex",myMeasure) 
         tabDat  <- dat.1 %>% select(varsIn)
+        dat.1$strata <- dat.1$sex
         
  
   }
@@ -120,6 +121,7 @@ trendGeneric <- function(myLHJ="CALIFORNIA",myCause="A",myMeasure = "YLL", myTab
       
       varsIn  <- c("causeNameShort","county","year","ageGroup",myMeasure) 
       tabDat  <- dat.1 %>% select(varsIn)
+      dat.1$strata <- dat.1$ageGroup
       
   }
   
@@ -185,13 +187,10 @@ trendGeneric <- function(myLHJ="CALIFORNIA",myCause="A",myMeasure = "YLL", myTab
     
     varsIn  <- c("causeNameShort","county","year","raceCode",myMeasure) # JASPO
     tabDat  <- dat.1 %>% select(varsIn)
-    
-    
+    dat.1$strata <- dat.1$raceCode
     
   }
-  
-  # ----- educationTrendTab -----
-  if (myTab == "educationTrendTab") { }
+
   
  
 #### Generic Part Here =====================================================================================
@@ -229,9 +228,18 @@ tplot <-  ggplot(data=dat.1,
 
 if (myTab == "raceTrendTab") tplot <- tplot + scale_color_manual(values = raceNameShortColors)
 
+# Interactive plot ---------------------------------------------------------------------------------------------------------------------------------------
+tplot_interactive <- plot_ly(dat.1, x = ~year, y = ~get(myMeasure), color = ~get(myVARIABLE), 
+                             type = "scatter", mode = "lines+markers") %>% 
+  layout(hovermode="x unified")
+
+tplot_interactive <- plotly_layout(tplot_interactive, myTitle = NULL, myTitleX = "Year", myTitleY = deathMeasuresNames[deathMeasures == myMeasure])
+
+if (myLogTrans) tplot_interactive <- tplot_interactive %>% layout(yaxis = list(type = "log", dtick = 0.30102999566))
+
 # if (myTab %in% c("raceTrendTab", "ageTrendTab") & myLogTrans) tplot <- tplot + scale_y_continuous(trans='log2') # JASPO - USE THIS, OR myTrans + myMin variables in ggplot?
 
- list(plotL = tplot, dataL = tabDat)
+ list(plotL = tplot, plotL_interactive = tplot_interactive, dataL = tabDat)
 
 }
 

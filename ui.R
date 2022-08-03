@@ -40,10 +40,8 @@ ui <- tagList(
                                       tabPanel(title = "HOSPITAL DISCHARGE", value = "hospitalDischargeTab"),
                                       tabPanel(title = "HOSPITAL DISCHARGE--PRIMARY AND ANY DIAGNOSES", value = "hospitalPrimaryAnyTab")
                                       )), 
-                 tabPanel(title = strong("DEMOGRAPHICS"), value = "demographics", 
-                          tabsetPanel(type = "tab", id = "demographicsID", 
-                                      tabPanel(title = "Demographics", value = "demographicsTab")
-                                      )), 
+                 tabPanel(title = strong("DEMOGRAPHICS"), value = "demographics",
+                          demographics_ui(id = "demographicsTab")),
                  tabPanel(title = strong(" DATA TABLE"), value = "dataTableTab"), 
                  tabPanel(title = strong("ABOUT"), value = "about", 
                           tabsetPanel(type = "tab", id = "aboutID", 
