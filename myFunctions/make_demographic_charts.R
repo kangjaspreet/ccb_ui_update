@@ -15,7 +15,7 @@ make_demoPop_Pyramid <- function(myCounty, myYear) {
   plotBreaks <- seq(-roundUpNice(max(tDat$population)),roundUpNice(max(tDat$population)),by=roundUpNice(max(tDat$population)/5))
   
   myPlot <- tDat %>%
-    plot_ly(x = ~population_notAbs, y = ~ageGroup, color = ~sex, colors = genderColors) %>% # marker = list(color = c("red", "blue"))) %>%
+    plot_ly(x = ~population_notAbs, y = ~ageGroup, color = ~sex, colors = genderColors, text = '') %>% # marker = list(color = c("red", "blue"))) %>%
     add_bars(orientation = 'h', hoverinfo = 'text', text = ~plotText) %>%
     layout(title = list(text = plotTitle, font = list(size = myTitleSize, color = "blue")), 
            margin = list(l=0, r=0, b=0, t=100, pad=2),

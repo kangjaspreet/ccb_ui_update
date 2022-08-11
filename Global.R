@@ -110,8 +110,12 @@ datCounty_3year <- readRDS(paste0("myData/", whichData, "/datCounty_3year.RDS"))
 datCounty_5year <- readRDS(paste0("myData/", whichData, "/datCounty_5year.RDS"))
 datCounty_RE <- readRDS(paste0("myData/", whichData, "/datCounty_RE.RDS"))
 datState_RE <- readRDS(paste0("myData/", whichData, "/datState_RE.RDS"))
-datCounty_AGE_3year <- readRDS(paste0("myData/", whichData, "/datCounty_AGE_3year.RDS"))
-datState_AGE <- readRDS(paste0("myData/", whichData, "/datState_AGE.RDS"))
+
+myAgeGroups <- c("0 - 4", "5 - 14", "15 - 24", "25 - 34", "35 - 44", "45 - 54", "55 - 64", "65 - 74", "75 - 84", "85+")
+datCounty_AGE_3year <- readRDS(paste0("myData/", whichData, "/datCounty_AGE_3year.RDS")) %>% 
+  mutate(ageGroup = factor(ageGroup, levels = myAgeGroups))
+datState_AGE <- readRDS(paste0("myData/", whichData, "/datState_AGE.RDS")) %>% 
+  mutate(ageGroup = factor(ageGroup, levels = myAgeGroups))
 
 datCounty_EDU <- readRDS(paste0("myData/", whichData, "/datCounty_EDU.RDS"))
 eduMap        <- as.data.frame(read_csv("myInfo/Education Codes and Names.csv"))
@@ -142,9 +146,10 @@ maxYear_LT <- max(lifeTableSet$year)
 popData_AgePyramid <- readRDS("myData/popData_AgePyramid.RDS")
 popData_RaceAge <- readRDS("myData/popData_RaceAge.RDS")
 popData_RacePie <- readRDS("myData/popData_RacePie.RDS")
-
+popData_trends <- readRDS("myData/popData_SexRaceAge_Trends.RDS")
 
 chartYearMap <-  read_excel("myInfo/Year to Year-Group Linkage.xlsx")
+
 
 # - 5. LOAD FUNCTIONS ------------------------------------------------------------------------------------------------------------------------------------
 

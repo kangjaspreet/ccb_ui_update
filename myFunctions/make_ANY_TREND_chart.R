@@ -116,7 +116,7 @@ trendGeneric <- function(myLHJ="CALIFORNIA",myCause="A",myMeasure = "YLL", myTab
       myTrans    <- ifelse(myLogTrans,'log2','identity')
       myMin      <- ifelse(myLogTrans,NA,0)
       
-      dat.1 <- mutate(dat.1,ageGroup = ifelse(ageGroup == "85 - 999","85+",ageGroup))  ###FIX THIS A TTTTOP LEVEL!
+      # dat.1 <- mutate(dat.1,ageGroup = ifelse(ageGroup == "85 - 999","85+",ageGroup))  ###FIX THIS A TTTTOP LEVEL!
       
       
       varsIn  <- c("causeNameShort","county","year","ageGroup",myMeasure) 
@@ -196,6 +196,8 @@ trendGeneric <- function(myLHJ="CALIFORNIA",myCause="A",myMeasure = "YLL", myTab
 #### Generic Part Here =====================================================================================
 
 myTitle <-  wrap.labels(myTitle,myWrapNumber)
+
+dat.1[, myMeasure] <- round(dat.1[, myMeasure], 1)
 
 tplot <-  ggplot(data=dat.1, 
                   aes(x=year, y=get(myMeasure), color=get(myVARIABLE))) +

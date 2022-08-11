@@ -13,7 +13,7 @@
 # LeadingCausesTrendTab  -> inputLHJ, inputMeasure, inputLevel, inputN, inputBroadGroup, inputYearRank, inputYearRange, inputYearRange, noteSuppression
 
 # DEMOGRAPHICS
-# demographicsTab -> inputLHJ, inputYearDemo
+# demographicsTab -> inputLHJ, inputYearDemo, inputTrendDemo
 
 
 downloadData <- function(id = NULL) {
@@ -107,6 +107,9 @@ inputYearDemo <- function(id = NULL) {
               round = TRUE, sep = "", step = 1)
 }
 
+inputTrendDemo <- function(id = NULL) {
+  selectInput(id, "Select Trend:", choices = c("Total", "Sex", "Race/Ethnicity", "Age Group"), selected = "Total")
+}
 
 
 # Notes -------------------------------------------------------------------------------------------------------------------------------------
