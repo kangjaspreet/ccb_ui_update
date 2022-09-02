@@ -39,10 +39,11 @@ VALID_YEARS <- 1990:2017
 
 
 # - 2. GLOBAL CONSTANTS --------------------------------------------------------------------------------------------------
+LOCAL <- FALSE
 
-myURL <- "http://127.0.0.1:4437/"
+myURL <- ifelse(LOCAL, "http://127.0.0.1:4437/", "https://skylab.dev.cdph.ca.gov/content/0d97f8b5-1ce0-4d5a-9df6-97ef53cbaac1/")
 
-whichData <- 'fake' # Change to fake to run app on local machine without access to real datasets
+whichData <- 'real' # Change to fake to run app on local machine without access to real datasets
 
 widthSidePanel <- 3
 widthMainPanel <- 12 - widthSidePanel
