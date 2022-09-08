@@ -39,11 +39,11 @@ VALID_YEARS <- 1990:2017
 
 
 # - 2. GLOBAL CONSTANTS --------------------------------------------------------------------------------------------------
-LOCAL <- FALSE
+LOCAL <- TRUE
 
 myURL <- ifelse(LOCAL, "http://127.0.0.1:4437/", "https://skylab.dev.cdph.ca.gov/content/0d97f8b5-1ce0-4d5a-9df6-97ef53cbaac1/")
 
-whichData <- 'real' # Change to fake to run app on local machine without access to real datasets
+whichData <- 'fake' # Change to fake to run app on local machine without access to real datasets
 
 widthSidePanel <- 3
 widthMainPanel <- 12 - widthSidePanel
@@ -64,7 +64,6 @@ pdf(NULL)
 proj1 <- "+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
 proj2 <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
-
 # Styles for help buttons and boxes ============================
 
 myInputHelpButtonSty <- paste0("width:20px;  color:#fff; background-color:#337ab7; border-color:white; padding:0px; font-size: 18px;",
@@ -72,6 +71,7 @@ myInputHelpButtonSty <- paste0("width:20px;  color:#fff; background-color:#337ab
                                "margin-left:10px;",
                                "float:right;"
 )   #2e6da4
+
 helpIcon <- "?"
 
 # Used for broad group input in leading causes tab - Replaced float right with display inline block. 
@@ -103,9 +103,19 @@ library(cowplot)
 library(docxtractr)
 library(rclipboard) # Copying link to clipboard
 
+# This resolves the error message for creating a map: "Error: Shape contains invalid polygons. Please fix it or set tmap_options(check.and.fix = TRUE) and rerun the plot"
+tmap_options(check.and.fix = TRUE)
+
 # - 4. READ DATASETS & INFO ------------------------------------------------------------------------------------------------------
 
+# SHAPE FILES - MAPS TAB
+shape_Tract        <- st_read("myData/shape_Tract.shp", stringsAsFactors=FALSE)
+shape_Comm         <- st_read("myData/shape_Comm.shp", stringsAsFactors=FALSE)
+shape_County       <- st_read("myData/shape_County.shp", stringsAsFactors=FALSE)
+
 # MORTALITY DATASETS
+datTract <- readRDS(paste0("myData/", whichData, "/datTract.RDS"))
+datComm <- readRDS(paste0("myData/", whichData, "/datComm.RDS"))
 datCounty <- readRDS(paste0("myData/", whichData, "/datCounty.RDS"))
 datCounty_3year <- readRDS(paste0("myData/", whichData, "/datCounty_3year.RDS"))
 datCounty_5year <- readRDS(paste0("myData/", whichData, "/datCounty_5year.RDS"))
@@ -121,6 +131,16 @@ datState_AGE <- readRDS(paste0("myData/", whichData, "/datState_AGE.RDS")) %>%
 datCounty_EDU <- readRDS(paste0("myData/", whichData, "/datCounty_EDU.RDS"))
 eduMap        <- as.data.frame(read_csv("myInfo/Education Codes and Names.csv"))
 datCounty_EDU <- left_join(datCounty_EDU, eduMap, by="eduCode")
+
+# MORTALITY DATASETS - DISPARITIES TAB
+ageTest_LOW <- readRDS(paste0("myData/", whichData, "/disparity_ageLow.RDS"))
+ageTest_HIGH <- readRDS(paste0("myData/", whichData, "/disparity_ageHigh.RDS"))
+
+raceTest_LOW <- readRDS(paste0("myData/", whichData, "/disparity_raceLow.RDS"))
+raceTest_HIGH <- readRDS(paste0("myData/", whichData, "/disparity_raceHigh.RDS"))
+
+sexTest_LOW <- readRDS(paste0("myData/", whichData, "/disparity_sexLow.RDS"))
+sexTest_HIGH  <- readRDS(paste0("myData/", whichData, "/disparity_sexHigh.RDS"))
 
 # Life Expectancy
 geoMap  <- as.data.frame(read_excel("myInfo/County Codes to County Names Linkage.xlsx")) %>%
@@ -138,16 +158,29 @@ lifeTableState  <- readRDS("myData/e0ciState.RDS") %>%
 lifeTableSet   <- bind_rows(lifeTableCounty, lifeTableState) %>%
   left_join(select(raceLink, raceCode, raceNameShort), by = "raceCode")
 
-# FIX MIN and MAX Year in global or other life tables function eventaully
 minYear_LT <- min(lifeTableSet$year)
 maxYear_LT <- max(lifeTableSet$year)
 
+# HOSPITALIZATION/ED DATASETS - AGE RACE FOCUS TABS
+focusData <- paste0("myData/", whichData, "/age_race_focus_data/")
+death_age <- readRDS(paste0(focusData, "deaths_age_stn.RDS"))
+hosp_age <- readRDS(paste0(focusData, "hospital_age_stn.RDS"))
+ed_age <- readRDS(paste0(focusData, "ed_age_stn.RDS"))
+death_race <- readRDS(paste0(focusData, "deaths_race_stn.RDS"))
+hosp_race <- readRDS(paste0(focusData, "hospital_race_stn.RDS"))
+ed_race <- readRDS(paste0(focusData, "ed_race_stn.RDS"))
 
 # POPULATION (DEMOGRAPHICS) DATASETS
 popData_AgePyramid <- readRDS("myData/popData_AgePyramid.RDS")
 popData_RaceAge <- readRDS("myData/popData_RaceAge.RDS")
 popData_RacePie <- readRDS("myData/popData_RacePie.RDS")
 popData_trends <- readRDS("myData/popData_SexRaceAge_Trends.RDS")
+
+# SOCIAL DETERMINANTS OF HEALTH DATASETS
+sdohTract <- readRDS("myData/sdohTract.RDS")
+sdohComm <- readRDS("myData/sdohComm.RDS")
+sdohCounty <- readRDS("myData/sdohCounty.RDS")
+
 
 chartYearMap <-  read_excel("myInfo/Year to Year-Group Linkage.xlsx")
 
@@ -160,6 +193,12 @@ source("myFunctions/make_LIFE-EXPECTANCY_chart.R")
 source("myFunctions/make_topTrends.R")
 source("myFunctions/make_TREND-EDUCATION_chart.R")
 source("myFunctions/make_demographic_charts.R")
+source("myFunctions/make_DISPARITY_chart.R")
+source("myFunctions/make_MAPS.R")
+source("myFunctions/make_rank_CAUSE_chart.R")
+source("myFunctions/make_rank_GEOGRAPHY_chart.R")
+source("myFunctions/make_rank_multibar_chart.R")
+source("myFunctions/make_SDOH_scatter_chart.R")
 
 # HELPER FUNCTIONS
 source("myFunctions/helperFunctions/wrapLabels.R")
@@ -281,7 +320,7 @@ names(bigCode)    <- bigList[, "causeList"]
 
 # SOCIAL DETERMINANTS OF HEALTH
 
-sdohLink <- readxl::read_excel(paste0(standardsPlace, "sdohLink.xlsx")) %>%
+sdohLink <- readxl::read_excel("Standards/sdohLink.xlsx") %>%
   filter(inCCB == "x")
 
 sdohVec <- setNames(sdohLink$sdohCode, sdohLink$sdohName)

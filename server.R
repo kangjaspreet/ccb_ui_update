@@ -27,6 +27,7 @@ server <- function(input, output, session) {
   trendsEducation_server(id = "educationTrendTab", urlParams = parseURL())
   trendsLifeExpectancy_server(id = "lifeExpectancyTrendTab", urlParams = parseURL())
   trendsLeadingCauses_server(id = "leadingCausesTrendTab", urlParams = parseURL())
+  disparities_server(id = "disparitiesTab", urlParams = parseURL())
   demographics_server(id = "demographicsTab")
   
   

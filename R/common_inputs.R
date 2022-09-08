@@ -12,6 +12,9 @@
 # lifeExpectancyTrendTab -> inputLHJ, inputSexMultiSelect, inputRaceMultiSelect, inputYearGrouping, inputCI
 # LeadingCausesTrendTab  -> inputLHJ, inputMeasure, inputLevel, inputN, inputBroadGroup, inputYearRank, inputYearRange, inputYearRange, noteSuppression
 
+# DISPARITIES
+# disparitiesTab -> inputCause, inputLHJ, inputCompare
+
 # DEMOGRAPHICS
 # demographicsTab -> inputLHJ, inputYearDemo, inputTrendDemo
 
@@ -111,6 +114,10 @@ inputTrendDemo <- function(id = NULL) {
   selectInput(id, "Select Trend:", choices = c("Total", "Sex", "Race/Ethnicity", "Age Group"), selected = "Total")
 }
 
+inputCompare <- function(id1 = NULL, id2 = NULL) {
+  radioButtons(id1, list(label = "Compare to group with:", actionButton(id2, label = helpIcon, style = myInputHelpButtonSty)), 
+               choices=c("lowest rate","highest rate"))
+}
 
 # Notes -------------------------------------------------------------------------------------------------------------------------------------
 noteSuppression <- function(id) {

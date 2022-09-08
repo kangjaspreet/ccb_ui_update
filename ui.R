@@ -27,10 +27,9 @@ ui <- tagList(
                                       trendsLifeExpectancy_ui(id = "lifeExpectancyTrendTab"),
                                       trendsLeadingCauses_ui(id = "leadingCausesTrendTab")
                                       )), 
-                 tabPanel(title = strong("DISPARITIES"), value = "disparities", 
+                 tabPanel(title = strong("DISPARITIES"), value = "disparities",
                           tabsetPanel(type = "tab", id = "disparitiesID", 
-                                      tabPanel(title = "Disparities", value = "disparitiesTab")
-                                      )), 
+                                      disparities_ui(id = "disparitiesTab"))),
                  tabPanel(title = strong("SDOH"), value = "sdoh", 
                           tabsetPanel(type = "tab", id = "sdohID", 
                                       tabPanel(title = "SOCIAL DETERMINANTS", value = "sdohTab")
