@@ -21,6 +21,7 @@ server <- function(input, output, session) {
   })
   
   # Server modules --------------------------------------------------------------------------------------------------------------------
+  home_server(id = "homeTab")
   trendsSex_server(id = "sexTrendTab", urlParams = parseURL())
   trendsAge_server(id = "ageTrendTab", urlParams = parseURL())
   trendsRace_server(id = "raceTrendTab", urlParams = parseURL())

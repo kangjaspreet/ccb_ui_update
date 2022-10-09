@@ -1,11 +1,35 @@
+.headerFooterBars { background-color: #2A529C; color: #F9FAFC; font-size: 20px; padding: 5px 50px 5px 50px; }
+
 /* Navigation bar styles ----------------------------------------------------------------------------------------- */
-.navbar-default { background-color: #164077; } /* Set navigation bar color */
-.navbar-default .navbar-nav li a { color: #FFFFFF; } /* Set navigation bar text color */
-.navbar-default .navbar-nav li a:hover { color: #FFFFFF; background-color: #000000; } /* Set navigation bar text color and background color when hovering */
-.navbar-default .navbar-brand { color: #FFFFFF; } /* Set navigation bar title (CA Community Burden of Disease Engine) color */
-.navbar-default .navbar-nav .active a { background-color: #000000; color: #FFFFFF; } /* Set active navigation item text color and background color */
-.navbar-default .navbar-nav .active a:focus { background-color: #000000; color: #FFFFFF; } /* Unsure what the difference is between focus and hover, but this is essentially doing the same thing as below. */
-.navbar-default .navbar-nav .active a:hover { background-color: #000000; color: #FFFFFF; } /* Set active navigation item text color and background color when hovering */
+.navbar-header {width: 0; }
+.navbar-brand {width: 0; padding: 0}
+
+
+.navbar-default { background-color: #0F79BF; } /* Set navigation bar color */
+.navbar-default .navbar-nav li a { color: #F9FAFC; } /* Set navigation bar text color */
+.navbar-default .navbar-nav li a:hover { color: #F9FAFC; background-color: #0F79BF; } /* Set navigation bar text color and background color when hovering */
+
+.navbar-default .navbar-nav .active a { background-color: #0F79BF; color: #F9FAFC; } /* Set active navigation item text color and background color */
+.navbar-default .navbar-nav .active a:focus { background-color: #0F79BF; color: #F9FAFC; } /* Unsure what the difference is between focus and hover, but this is essentially doing the same thing as below. */
+.navbar-default .navbar-nav .active a:hover { background-color: #0F79BF; color: #F9FAFC; } /* Set active navigation item text color and background color when hovering */ 
+
+
+/* Navigation icon style ----------------------------------------------------------------------------------------- */
+.nav li {text-align: center; padding: 0 20px 0 20px;}
+.nav li::after {content: ''; width: 1px; height: 60%; top: 20%; right: 0; position: absolute; background-color: #FFFFFF}
+.fa { display: block !important; margin-bottom: 8px; }
+.fa-fw {width: auto !important; }
+
+/* Homepage - Featured Stories ----------------------------------------------------------------------------------------- */
+.homeMainContent {margin-left: 15%; margin-right: 15%}
+.featuredStoryRow .row {display: flex;}
+.featuredStoryRow .col-sm-3 {display: flex; flex-direction: column; }
+.featuredStory {padding: 20px; color: #FFFFFF; background-color: #6A924C; box-shadow: 0 4px 8px 0 #6A924C; transition: 0.1s; flex-basis: 0; flex-grow: 1;}
+.featuredStory:hover {box-shadow: 0 8px 16px 0 #6A924C;}
+.featuredStory img {height: 300px; width: 100%; }
+.featuredStory h1 {font-size: 24px; font-weight: bold;}
+.link-spanner{position:absolute; width:100%; height:100%; top:0; left: 0; z-index: 1; } 
+
 
 /* Customise sub-tabs */
 .nav { margin-bottom: 0; }
