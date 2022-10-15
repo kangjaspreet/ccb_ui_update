@@ -3,6 +3,7 @@
 /* Navigation bar styles ----------------------------------------------------------------------------------------- */
 .navbar-header {width: 0; }
 .navbar-brand {width: 0; padding: 0}
+.fa-2x {font-size: 1.5em}
 
 
 .navbar-default { background-color: #0F79BF; } /* Set navigation bar color */
@@ -20,13 +21,39 @@
 .fa { display: block !important; margin-bottom: 8px; }
 .fa-fw {width: auto !important; }
 
+/* Homepage - Anatomy -------------------------------------------------------------------------------------------- */
+.anatomyRow {border: 1px solid #b3b3b3; padding: 15px; } /* Grey border around anatomy section */
+.anatomyRow .row {margin-left: 0; margin-right: 0;}
+
+/* Dynamic menu */
+.anatomyRow .col-sm-2 .btn-group-container-sw {display: flex; flex-direction: column;} /* Display buttons vertically */
+/* Style menu buttons, including active and when hovering */
+.btn-anatomyMenu {background-color: #e5e1d9; color: black; font-weight: bold !important; margin-bottom: 5px !important; width: 100%; height: 100%; object-fit: contain; text-align: left !important; border-radius: 8px !important; padding: 6px !important; white-space: normal !important; }
+.btn-anatomyMenu.active {background-color: #9E8DE3; color: white; }
+.btn-anatomyMenu:hover {background-color: #9E8DE3; color: white; }
+.anatomyRow .form-group {margin-top: -15px; margin-bottom: 0;}
+
+.anatomyRow .col-sm-3 {margin-top: 30px; }
+.anatomyRow ul {list-style-type: none; margin: 0; padding: 0; line-height: 2; color: #1477BB;}
+.anatomyRow ul strong {font-weight: 900;}
+.anatomyRow .secondLevel {list-style-type: square; margin-left: 15px; padding-left: 15px;}
+
+.bracket-dividers {
+  border: 1px solid #5B97D1;
+  border-image:linear-gradient(to right,#5B97D1 10px,transparent 0 calc(100% - 10px),transparent 0) 4;
+  padding-left:10px;
+}
+
+
+.anatomyRow .col-sm-7 {border: 3px solid #5B97D1;}
+
 /* Homepage - Featured Stories ----------------------------------------------------------------------------------------- */
-.homeMainContent {margin-left: 15%; margin-right: 15%}
+.homeMainContent {margin-left: 2.5%; margin-right: 2.5%}
 .featuredStoryRow .row {display: flex;}
 .featuredStoryRow .col-sm-3 {display: flex; flex-direction: column; }
 .featuredStory {padding: 20px; color: #FFFFFF; background-color: #6A924C; box-shadow: 0 4px 8px 0 #6A924C; transition: 0.1s; flex-basis: 0; flex-grow: 1;}
 .featuredStory:hover {box-shadow: 0 8px 16px 0 #6A924C;}
-.featuredStory img {height: 300px; width: 100%; }
+.featuredStory img {width: 100%; aspect-ratio: 1.4;}
 .featuredStory h1 {font-size: 24px; font-weight: bold;}
 .link-spanner{position:absolute; width:100%; height:100%; top:0; left: 0; z-index: 1; } 
 
