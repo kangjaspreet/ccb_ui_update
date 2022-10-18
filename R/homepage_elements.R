@@ -1,3 +1,17 @@
+
+# Anatomy menu information ---------------------------------------------------------------------------------------------------
+anatomyMenuInfo <- function(selectedCategory) {
+  
+  homeAnatomyMenu %>% 
+    filter(menuValue == selectedCategory) %>% 
+    pull(menuInfo) %>% 
+    return()
+  
+}
+
+
+# Featured assessments/stories -----------------------------------------------------------------------------------------------
+
 featuredStory <- function(
   myURL,
   myImage,

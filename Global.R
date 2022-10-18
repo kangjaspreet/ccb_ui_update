@@ -229,9 +229,13 @@ news_and_updates <- paste("\n<li>Welcome to the CCB!</li>\n<br>", (paste(news_an
 # WARNING MESSAGES
 multiRaceWarning <- "*Note: Multirace data are NOT RELIABLE due to changing data collection practices"
 
-
+# Not sure if this needed anymore
 tabsLink <- read_xlsx("myInfo/queryParameter_Linkage.xlsx") %>% 
   select(tabID, sub_tabID)
+
+# Homepage - Anatomy menu categories and information
+homeAnatomyMenu <- read_docx("myInfo/Homepage Anatomy Menu and Information.docx")
+homeAnatomyMenu <- docx_extract_tbl(homeAnatomyMenu, 1)
 
 
 # - 7. CREATE VECTORS FOR SHINY INPUTS -------------------------------------------------------------------------------------------------------------
