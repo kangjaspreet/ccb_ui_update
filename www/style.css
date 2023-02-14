@@ -47,15 +47,66 @@
 
 .anatomyRow .col-sm-7 {border: 3px solid #5B97D1;}
 
+/* Homepage - Anatomy Row 2 ------------------------------------------------------------------------------------------- */
+#homeTab-my_vertical_tab_panel-tabbable.col-sm-12.vrtc-tab-panel-container.tabbable {
+  display: flex;
+}
+
+.vrtc-tab-panel-container {
+  display: flex !important;
+}
+
+.vrtc-tab-panel-menu {
+  display:flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+}
+
+.vrtc-tab-panel-content {
+  height: 100% !important;
+}
+
+.col-sm-2.vrtc-tab-panel-menu.vrtc-tab-panel-menu-left {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+}
+
+.col-sm-10.vrtc-tab-panel.tab-content {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+}
+
+.vrtc-tab-panel-content.active {
+  height: 100%;
+}
+
+.anatomyRow2 .col-sm-4 {
+  height: 100;
+}
+
+anatomyRow2
+
+/* Homepage - Information (Updates, About, SHA/SHIP, etc) Row --------------------------------------------------------- */
+.infoRow {padding: 15px; } /* Add padding */
+.infoRow .row {margin-left: 0; margin-right: 0;} /* No margins */
+.infoRow .col-sm-2 .btn-group-container-sw {display: flex; flex-direction: column;} /* Display buttons vertically */
+
+
+/* Homepage - CDPH Logo + CCB Summary Statement ------------------------------------------------------------------------ */
+.statementRow .row {display: flex; }
+.statementRow .col-sm-2 {display: flex; flex-direction: column; }
+
 /* Homepage - Featured Stories ----------------------------------------------------------------------------------------- */
 .homeMainContent {margin-left: 2.5%; margin-right: 2.5%}
 .featuredStoryRow .row {display: flex;}
-.featuredStoryRow .col-sm-3 {display: flex; flex-direction: column; }
-.featuredStory {padding: 20px; color: #FFFFFF; background-color: #6A924C; box-shadow: 0 4px 8px 0 #6A924C; transition: 0.1s; flex-basis: 0; flex-grow: 1;}
+.featuredStoryRow .col-sm-3 {display: flex; flex-direction: column; aspect-ratio: 1 / 1;} 
+.featuredStory {padding: 20px; color: #FFFFFF; background-color: #6A924C; box-shadow: 0 4px 8px 0 #6A924C; transition: 0.1s; flex-basis: 0; flex-grow: 1; overflow-y: auto;}
 .featuredStory:hover {box-shadow: 0 8px 16px 0 #6A924C;}
 .featuredStory img {width: 100%; aspect-ratio: 1.4;}
-.featuredStory h1 {font-size: 24px; font-weight: bold;}
-.link-spanner{position:absolute; width:100%; height:100%; top:0; left: 0; z-index: 1; } 
+/* .featuredStory h1 {font-size: 24px; font-weight: bold;} */
+/* .link-spanner{position:absolute; width:100%; height:100%; top:0; left: 0; z-index: 1; } */
 
 
 /* Customise sub-tabs */

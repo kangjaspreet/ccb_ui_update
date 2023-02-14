@@ -88,6 +88,7 @@ library(shiny)
 library(shinyjs)
 library(shinyWidgets)
 library(shinydashboard)
+library(bs4Dash)
 library(magrittr)
 library(leaflet)
 library(tmap)
@@ -236,6 +237,9 @@ tabsLink <- read_xlsx("myInfo/queryParameter_Linkage.xlsx") %>%
 # Homepage - Anatomy menu categories and information
 homeAnatomyMenu <- read_docx("myInfo/Homepage Anatomy Menu and Information.docx")
 homeAnatomyMenu <- docx_extract_tbl(homeAnatomyMenu, 1)
+
+homeInfo <- read_docx("myInfo/Homepage Information.docx")
+homeInfo <- docx_extract_tbl(homeInfo, 1)
 
 
 # - 7. CREATE VECTORS FOR SHINY INPUTS -------------------------------------------------------------------------------------------------------------
