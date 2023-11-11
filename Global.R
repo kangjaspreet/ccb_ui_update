@@ -80,6 +80,7 @@ library(shinyWidgets)
 library(shinydashboard)
 library(bs4Dash)
 library(rclipboard) # Copying link to clipboard. Requires version 0.1 - remotes::install_github("sbihorel/rclipboard")
+library(waiter)
 
 ## Map packages --------------------------
 library(leaflet)

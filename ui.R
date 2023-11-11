@@ -1,9 +1,18 @@
 ui <- tagList(
+  useWaiter(),
+  waiterPreloader(html = tagList(
+    img(src = 'Logos/CDPH_Logo1.jpg', width = "272.65px", height = "200px", style="margin-right: 20px"), 
+    img(src = 'Logos/FC_Logo-SquareCentered.jpg', width = "270.42px", height = "200px", style="margin-right: 20px"),
+    img(src = 'Logos/LGHC_Logo_jpg.jpg', width = "311.2px", height = "200px"),
+    br(),
+    spin_loaders(id = 3, color = "orange", style = NULL)
+  ), color = "white"),
   rclipboardSetup(),
   shinyjs::useShinyjs(),
   tags$style("@import url(https://use.fontawesome.com/releases/v6.2.0/css/all.css);"), # Import current version of FontAwesome
   HTML("<div class = 'headerFooterBars'> <span> CALIFORNIA COMMUNITY BURDEN OF DISEASE ENGINE </span> </div>"),
-  navbarPage(title = NULL,
+  navbarPage(
+    title = NULL,
                  id = "navsID",
                  # position = "fixed-top",
                  theme = "style.css",

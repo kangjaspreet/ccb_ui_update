@@ -1,4 +1,5 @@
 server <- function(input, output, session) {
+  Sys.sleep(3)
   
 
   # User-supplied URL for linking to specific view ---------------------------------------------------------------------------------
