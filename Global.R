@@ -12,53 +12,42 @@
 #   Creates vectors used for Shiny app inputs   
 #
 # 
-#   Michael Samuel, Jaspreet Kang
-#   2021
+#   Michael Samuel, Jaspreet Kang, Shuo Chen
+#   2023
 #
 # =============================================================================
 
-# - 1. LOAD STANDARDS & SET PATHS ----------------------------------------------------------------------------------------------------
+# 1. LOAD STANDARDS =================================================================================================================
 CCB         <- TRUE
 server      <- TRUE
-myPlace     <- getwd() # ERROR IF THIS ISNT HERE. DETERMINE AN APPROACH WHERE THIS ISNT NEEDED
-
-source(paste0(myPlace, "/Standards/FusionStandards.R")) # This works when specifying the full path, but not the relative path??????
-
-raceLink    <- select(raceLink, raceCode,raceName,raceNameShort)
-
-# IN MULTIBAR FUNCTION
-raceSort <- raceLink %>%
-  filter(!raceCode %in% c("Other", "Unknown", "Total", "Multi-Race")) %>%
-  pull(raceNameShort)
-
-# IN OSHPD PRIMARY FUNCTION
-listPosition <- c("nPrimary", "nOther", "nTotal", "percentPrimary", "percentOther")
-
-# IN IGME SCRIPT
-VALID_YEARS <- 1990:2017
+source("Standards/FusionStandards.R") # This works when specifying the full path, but not the relative path??????
 
 
-# - 2. GLOBAL CONSTANTS --------------------------------------------------------------------------------------------------
+# 2. GLOBAL CONSTANTS ==============================================================================================================
 LOCAL <- TRUE
+myURL <- ifelse(LOCAL, "http://127.0.0.1:4437/", 
+                "https://skylab.dev.cdph.ca.gov/content/0d97f8b5-1ce0-4d5a-9df6-97ef53cbaac1/")
 
-myURL <- ifelse(LOCAL, "http://127.0.0.1:4437/", "https://skylab.dev.cdph.ca.gov/content/0d97f8b5-1ce0-4d5a-9df6-97ef53cbaac1/")
 
+listPosition <- c("nPrimary", "nOther", "nTotal", "percentPrimary", "percentOther") # IN OSHPD PRIMARY FUNCTION
+
+## Data ---------------------------
 whichData <- 'fake' # Change to fake to run app on local machine without access to real datasets
+VALID_YEARS <- 1990:2017 # In ihme script
 
+## Panel widths - sidebar and main --------------
 widthSidePanel <- 3
 widthMainPanel <- 12 - widthSidePanel
 
-viewType <- "Present"
-
-# TEXT Constants
+## Text -----------
 VERSION           <- "Version P3.0" # Used in ui.R
 criticalNumber    <- 11 # Used in input_widgets.R
 appTitle          <- "California Community Burden of Disease Engine" # Used in ui.R
-
 figureAttribution <- "California Department of Public Health" # Used in make_MAPS.R
 
-# eliminates "Rplots.pdf" error generated only on CDPH Shiny Server, from tmap leaflet map
-pdf(NULL) 
+## For tmap -----------------
+
+pdf(NULL) # eliminates "Rplots.pdf" error generated only on CDPH Shiny Server, from tmap leaflet map
 
 # USE consistent map projection system throughout all app code !
 proj1 <- "+proj=aea +lat_1=34 +lat_2=40.5 +lat_0=0 +lon_0=-120 +x_0=0 +y_0=-4000000 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"
@@ -82,39 +71,57 @@ myInputHelpButtonSty_broadGroup <- paste0("width:20px;  color:#fff; background-c
 ) 
 
 
-# - 3. LOAD PACKAGES ------------------------------------------------------------------------------------------------------
+# 3. LOAD PACKAGES ============================================================================================
 
+## Shiny-related packages --------------------------
 library(shiny)
 library(shinyjs)
 library(shinyWidgets)
 library(shinydashboard)
 library(bs4Dash)
-library(magrittr)
+library(rclipboard) # Copying link to clipboard. Requires version 0.1 - remotes::install_github("sbihorel/rclipboard")
+
+## Map packages --------------------------
 library(leaflet)
-library(tmap)
+library(tmap) # tmap 3.x retiring. Testing v4 - remotes::install_github('r-tmap/tmap')
 library(sf)
 library(classInt) # Used in maps
-library(plotly)
-library(markdown)
-library(directlabels)
-library(scales)
-library(visNetwork) # used in IHME tab
-library(DT)
-library(cowplot)
-library(docxtractr)
-library(rclipboard) # Copying link to clipboard
 
 # This resolves the error message for creating a map: "Error: Shape contains invalid polygons. Please fix it or set tmap_options(check.and.fix = TRUE) and rerun the plot"
 tmap_options(check.and.fix = TRUE)
 
-# - 4. READ DATASETS & INFO ------------------------------------------------------------------------------------------------------
+## Visualization-related ------------------------
+library(plotly) # Interactive visualizations
+library(markdown)
+library(directlabels)
+library(visNetwork) # used in IHME tab
+library(cowplot)
 
-# SHAPE FILES - MAPS TAB
+## Table-related packages --------------------------
+library(DT)
+
+## Packages for reading in files ------------------
+library(docxtractr)
+
+
+# 4. READ DATASETS & INFO ===========================================================================================
+
+raceLink    <- select(raceLink, raceCode,raceName,raceNameShort)
+
+# IN MULTIBAR FUNCTION
+raceSort <- raceLink %>%
+  filter(!raceCode %in% c("Other", "Unknown", "Total", "Multi-Race")) %>%
+  pull(raceNameShort)
+
+## Year to Year Group ---------------------
+chartYearMap <-  read_excel("myInfo/Year to Year-Group Linkage.xlsx")
+
+## SHAPE FILES - MAPS TAB -----------------------------------
 shape_Tract        <- st_read("myData/shape_Tract.shp", stringsAsFactors=FALSE)
 shape_Comm         <- st_read("myData/shape_Comm.shp", stringsAsFactors=FALSE)
 shape_County       <- st_read("myData/shape_County.shp", stringsAsFactors=FALSE)
 
-# MORTALITY DATASETS
+## MORTALITY DATASETS ----------------------------------
 datTract <- readRDS(paste0("myData/", whichData, "/datTract.RDS"))
 datComm <- readRDS(paste0("myData/", whichData, "/datComm.RDS"))
 datCounty <- readRDS(paste0("myData/", whichData, "/datCounty.RDS"))
@@ -123,17 +130,17 @@ datCounty_5year <- readRDS(paste0("myData/", whichData, "/datCounty_5year.RDS"))
 datCounty_RE <- readRDS(paste0("myData/", whichData, "/datCounty_RE.RDS"))
 datState_RE <- readRDS(paste0("myData/", whichData, "/datState_RE.RDS"))
 
-myAgeGroups <- c("0 - 4", "5 - 14", "15 - 24", "25 - 34", "35 - 44", "45 - 54", "55 - 64", "65 - 74", "75 - 84", "85+")
 datCounty_AGE_3year <- readRDS(paste0("myData/", whichData, "/datCounty_AGE_3year.RDS")) %>% 
-  mutate(ageGroup = factor(ageGroup, levels = myAgeGroups))
+  mutate(ageGroup = factor(ageGroup, levels = ageLink$ageName))
+
 datState_AGE <- readRDS(paste0("myData/", whichData, "/datState_AGE.RDS")) %>% 
-  mutate(ageGroup = factor(ageGroup, levels = myAgeGroups))
+  mutate(ageGroup = factor(ageGroup, levels = ageLink$ageName))
 
 datCounty_EDU <- readRDS(paste0("myData/", whichData, "/datCounty_EDU.RDS"))
 eduMap        <- as.data.frame(read_csv("myInfo/Education Codes and Names.csv"))
 datCounty_EDU <- left_join(datCounty_EDU, eduMap, by="eduCode")
 
-# MORTALITY DATASETS - DISPARITIES TAB
+## MORTALITY DATASETS - DISPARITIES TAB ---------------------------
 ageTest_LOW <- readRDS(paste0("myData/", whichData, "/disparity_ageLow.RDS"))
 ageTest_HIGH <- readRDS(paste0("myData/", whichData, "/disparity_ageHigh.RDS"))
 
@@ -143,7 +150,7 @@ raceTest_HIGH <- readRDS(paste0("myData/", whichData, "/disparity_raceHigh.RDS")
 sexTest_LOW <- readRDS(paste0("myData/", whichData, "/disparity_sexLow.RDS"))
 sexTest_HIGH  <- readRDS(paste0("myData/", whichData, "/disparity_sexHigh.RDS"))
 
-# Life Expectancy
+## Life Expectancy -------------------------------------------
 geoMap  <- as.data.frame(read_excel("myInfo/County Codes to County Names Linkage.xlsx")) %>%
   select(FIPSCounty,county=countyName)
 
@@ -162,7 +169,7 @@ lifeTableSet   <- bind_rows(lifeTableCounty, lifeTableState) %>%
 minYear_LT <- min(lifeTableSet$year)
 maxYear_LT <- max(lifeTableSet$year)
 
-# HOSPITALIZATION/ED DATASETS - AGE RACE FOCUS TABS
+## HOSPITALIZATION/ED DATASETS - AGE RACE FOCUS TABS --------------------
 focusData <- paste0("myData/", whichData, "/age_race_focus_data/")
 death_age <- readRDS(paste0(focusData, "deaths_age_stn.RDS"))
 hosp_age <- readRDS(paste0(focusData, "hospital_age_stn.RDS"))
@@ -171,22 +178,21 @@ death_race <- readRDS(paste0(focusData, "deaths_race_stn.RDS"))
 hosp_race <- readRDS(paste0(focusData, "hospital_race_stn.RDS"))
 ed_race <- readRDS(paste0(focusData, "ed_race_stn.RDS"))
 
-# POPULATION (DEMOGRAPHICS) DATASETS
+## POPULATION (DEMOGRAPHICS) DATASETS ---------------------------------
 popData_AgePyramid <- readRDS("myData/popData_AgePyramid.RDS")
 popData_RaceAge <- readRDS("myData/popData_RaceAge.RDS")
 popData_RacePie <- readRDS("myData/popData_RacePie.RDS")
 popData_trends <- readRDS("myData/popData_SexRaceAge_Trends.RDS")
 
-# SOCIAL DETERMINANTS OF HEALTH DATASETS
+## SOCIAL DETERMINANTS OF HEALTH DATASETS -----------------------------------
 sdohTract <- readRDS("myData/sdohTract.RDS")
 sdohComm <- readRDS("myData/sdohComm.RDS")
 sdohCounty <- readRDS("myData/sdohCounty.RDS")
 
 
-chartYearMap <-  read_excel("myInfo/Year to Year-Group Linkage.xlsx")
 
 
-# - 5. LOAD FUNCTIONS ------------------------------------------------------------------------------------------------------------------------------------
+# 5. LOAD FUNCTIONS ===============================================================================================
 
 # PLOTTING/TABLE FUNCTIONS
 source("myFunctions/make_ANY_TREND_chart.R")
@@ -206,9 +212,9 @@ source("myFunctions/helperFunctions/wrapLabels.R")
 source("myFunctions/helperFunctions/dottedSelectInput.R")
 
 
-# - 6. APP TEXT ---------------------------------------------------------------------------------------------------------------------------------------
+# 6. APP TEXT ==========================================================================================================
 
-appText         <- read_docx(path(ccbData, "appText/appText.docx")) # Read in appText Word Doc
+appText         <- read_docx("myData/appText/appText.docx") # Read in appText Word Doc
 appText         <- docx_extract_tbl(appText, 1) # Extract table
 appTextL        <- split(appText$Text, seq(nrow(appText))) # Convert data frame into a list
 names(appTextL) <- appText$varName # Add varNames to list
@@ -221,7 +227,7 @@ HospitalPrimaryAnyTab <- paste(appTextL$hospA,"<br><br>", appTextL$hospC)
 
 
 # NEWS AND UPDATES
-news_and_updates <- read_docx(paste0(ccbData, "/appText/newsUseCCB_Word.docx"))
+news_and_updates <- read_docx("myData/appText/newsUseCCB_Word.docx")
 news_and_updates <- docx_extract_tbl(news_and_updates, 1) %>%
   mutate(Text = paste("<li>", Date, Update, "</li>"))
 news_and_updates <- paste("\n<li>Welcome to the CCB!</li>\n<br>", (paste(news_and_updates$Text, collapse = "\n")), sep = "\n")
